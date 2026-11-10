@@ -2,6 +2,10 @@
 
 从 [原始 Claude Artifact](https://claude.ai/artifact/BGY1SztrAYcJQHSsnHHGmp) 恢复的完整可运行版本，保留原游戏画面、关卡、敌人、武器、音效、操作和菜单。
 
+## 在线试玩
+
+**[打开 Saltline](https://realskyrin.github.io/fps3ademo-saltline/)**，点击 **DEPLOY** 开始游戏。
+
 ## 本地开发
 
 需要 Node.js 20.19+ 或 22.12+。推荐使用当前 LTS 和 Chrome/Edge 等支持 WebGL 2 的浏览器。
@@ -26,6 +30,12 @@ npm run preview
 ```
 
 构建结果在 `dist/`，预览地址是 <http://127.0.0.1:4173/>。可将 `dist/` 放到任意静态 HTTP 服务；应通过 HTTP 打开，以便脚本模块和浏览器输入正常工作。
+
+## GitHub Pages 部署
+
+仓库已启用 GitHub Pages，发布来源为 **GitHub Actions**。[部署工作流](https://github.com/realskyrin/fps3ademo-saltline/actions/workflows/pages.yml) 在推送到 `main` 时自动运行，也可通过 **Run workflow** 手动触发。工作流检查 Pages 配置，执行 `npm ci`、`npm run check` 和 `npm run build`，然后发布 `dist/`。
+
+在其他仓库使用这套工作流时，需要先到 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**，否则部署接口会返回 404。
 
 ## 继续修改
 
