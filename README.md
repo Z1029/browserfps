@@ -6,6 +6,14 @@
 
 **[打开 Saltline](https://realskyrin.github.io/fps3ademo-saltline/)**，点击 **DEPLOY** 开始游戏。
 
+## 游戏截图
+
+![Saltline 港口战斗场景](docs/screenshots/saltline-harbor.png)
+
+![Saltline 仓库内换弹动作](docs/screenshots/saltline-reload.png)
+
+![Saltline 港口交火场景](docs/screenshots/saltline-combat.png)
+
 ## 本地开发
 
 需要 Node.js 20.19+ 或 22.12+。推荐使用当前 LTS 和 Chrome/Edge 等支持 WebGL 2 的浏览器。
