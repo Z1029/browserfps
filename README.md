@@ -4,7 +4,7 @@
 
 ## 在线试玩
 
-**[打开 Saltline](https://realskyrin.github.io/fps3ademo-saltline/)**，点击 **DEPLOY** 开始游戏。
+**[打开 Saltline](https://realskyrin.github.io/fps3ademo-saltline/)**，点击 **DEPLOY** 开始游戏。该在线版本由上游仓库 [realskyrin/fps3ademo-saltline](https://github.com/realskyrin/fps3ademo-saltline) 的 GitHub Pages 发布。
 
 ## 游戏截图
 
@@ -19,8 +19,8 @@
 需要 Node.js 20.19+ 或 22.12+。推荐使用当前 LTS 和 Chrome/Edge 等支持 WebGL 2 的浏览器。
 
 ```sh
-git clone https://github.com/realskyrin/fps3ademo-saltline.git
-cd fps3ademo-saltline
+git clone https://github.com/Z1029/browserfps.git
+cd browserfps
 npm ci
 npm run dev
 ```
@@ -41,9 +41,9 @@ npm run preview
 
 ## GitHub Pages 部署
 
-仓库已启用 GitHub Pages，发布来源为 **GitHub Actions**。[部署工作流](https://github.com/realskyrin/fps3ademo-saltline/actions/workflows/pages.yml) 在推送到 `main` 时自动运行，也可通过 **Run workflow** 手动触发。工作流检查 Pages 配置，执行 `npm ci`、`npm run check` 和 `npm run build`，然后发布 `dist/`。
+仓库内的[部署工作流](https://github.com/Z1029/browserfps/blob/main/.github/workflows/pages.yml) 在推送到 `main` 时自动运行，也可在 Actions 页面通过 **Run workflow** 手动触发。工作流检查 Pages 配置，执行 `npm ci`、`npm run check` 和 `npm run build`，然后发布 `dist/`。
 
-在其他仓库使用这套工作流时，需要先到 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**，否则部署接口会返回 404。
+使用这套工作流前，需要先到 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**，否则部署接口会返回 404。当前 `Z1029/browserfps` 仓库尚未启用 Pages，启用并完成一次成功部署后才会出现在线地址。
 
 ## 继续修改
 
@@ -88,26 +88,28 @@ npm run preview
 
 设置保存在当前浏览器的 `localStorage`（`saltline.settings.v1`）。本地地址与原站的浏览器存储相互独立。
 
-## 原件校验
-恢复日期：2026-11-10；公开版本：`1794242702-61c7`。
+## 原件校验
+恢复日期：2026-11-10；公开版本：`1794242702-61c7`。
 ```sh
 npm run verify:archive
-```
-原件大小为 1,423,413 字节，SHA-256：
+```
+原件大小为 1,423,413 字节，SHA-256：
 ```text
 f7081ef7b2fde5880e3c58184c720b2aa3b9115efe58ff71b48f6820d4f16f90
-```
-原件保留原始 Google Fonts 链接；本地开发入口使用已下载的字体。Claude 的页面外壳与注入运行时未加入本地游戏。
+```
+原件保留原始 Google Fonts 链接；本地开发入口使用已下载的字体。Claude 的页面外壳与注入运行时未加入本地游戏。
 
-## Git 仓库
-- 仓库：https://github.com/realskyrin/fps3ademo-saltline
+## Git 仓库
+- 当前仓库（origin）：https://github.com/Z1029/browserfps（fork）
+- 上游仓库（upstream）：https://github.com/realskyrin/fps3ademo-saltline
 - 当前分支：main
-- 提交历史：9 条提交
+- 提交历史：6 条提交
 - 最后更新：2026-11-12
+- 同步状态：本地 `main` 领先 `origin/main` 1 条提交，工作区干净
 
 ```sh
-git clone https://github.com/realskyrin/fps3ademo-saltline.git
-cd fps3ademo-saltline
+git clone https://github.com/Z1029/browserfps.git
+cd browserfps
 npm ci
 npm run dev
 ```
