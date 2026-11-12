@@ -88,18 +88,26 @@ npm run preview
 
 设置保存在当前浏览器的 `localStorage`（`saltline.settings.v1`）。本地地址与原站的浏览器存储相互独立。
 
-## 原件校验
-
-恢复日期：2026-11-10；公开版本：`1794242702-61c7`。
-
+## 原件校验
+恢复日期：2026-11-10；公开版本：`1794242702-61c7`。
 ```sh
 npm run verify:archive
-```
-
-原件大小为 1,423,413 字节，SHA-256：
-
+```
+原件大小为 1,423,413 字节，SHA-256：
 ```text
 f7081ef7b2fde5880e3c58184c720b2aa3b9115efe58ff71b48f6820d4f16f90
-```
+```
+原件保留原始 Google Fonts 链接；本地开发入口使用已下载的字体。Claude 的页面外壳与注入运行时未加入本地游戏。
 
-原件保留原始 Google Fonts 链接；本地开发入口使用已下载的字体。Claude 的页面外壳与注入运行时未加入本地游戏。
+## Git 仓库
+- 仓库：https://github.com/realskyrin/fps3ademo-saltline
+- 当前分支：main
+- 提交历史：9 条提交
+- 最后更新：2026-11-12
+
+```sh
+git clone https://github.com/realskyrin/fps3ademo-saltline.git
+cd fps3ademo-saltline
+npm ci
+npm run dev
+```
