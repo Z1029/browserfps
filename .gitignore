@@ -12,3 +12,6 @@ functions/
 # 第三方站点配置
 .双人竞技场.qoder.site
 
+# 大体积模型资产，暂不入库
+public/models/
+

@@ -90,6 +90,10 @@ var tC = new Set([
   "relay_cut",
   "container_bang",
   "ear_ring",
+  "rival_shot",
+  "rival_step",
+  "rival_step_metal",
+  "rival_step_water",
 ]);
 
 var nC = [

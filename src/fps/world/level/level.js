@@ -2,6 +2,7 @@ import { Group, defineModuleExports } from "../../vendor/three-r180.js";
 import { batchStaticMeshes } from "../../core/geometry.js";
 import { ab, no, ob, rb } from "./buildings.js";
 import { Lr, cb, fR, hR, lv, mt, ts } from "./placement.js";
+import { preloadSoldier } from "../props/soldier.js";
 
 var levelShowcaseModule = {};
 
@@ -14,6 +15,7 @@ async function createLevel(context) {
   let e = new Group();
   ((e.name = "level"), context.scene.add(e));
   let t = ob(context);
+  let soldierReady = preloadSoldier();
   (hR(t), fR(t));
   let n = ab(t),
     s = cb(t),
@@ -47,6 +49,10 @@ async function createLevel(context) {
       },
       0,
     );
+  if (await soldierReady)
+    t.place("soldier", -24, 3.5, -1.27, {}, 0, {
+      dynamic: !0,
+    });
   (Lr(
     t,
     [

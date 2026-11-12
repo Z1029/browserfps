@@ -20,6 +20,7 @@ import {
 import { registerDetailedProps } from "./detailed-builders.js";
 import { registerCharacterProps } from "./character-builders.js";
 import { registerCargoProps } from "./cargo-builders.js";
+import { buildSoldier } from "./soldier.js";
 
 for (let i of ["container20", "container40", "container40hc"])
   registerProp(i, (e, t) => buildBasicContainer(e, i, t));
@@ -51,6 +52,8 @@ registerProp("shelf_rack", buildShelfRack);
 registerProp("reefer_unit", buildReeferUnit);
 
 registerProp("relay_node", buildRelayNode);
+
+registerProp("soldier", buildSoldier);
 
 registerDetailedProps(registerProp);
 

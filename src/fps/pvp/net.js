@@ -9,7 +9,18 @@ const PING_INTERVAL = 2;
 const READY_INTERVAL = 0.6;
 const DEFAULT_DAMAGE = 26;
 
+// Footfalls ride the unreliable state snapshot as a running counter, so a dropped
+// packet delays the cue by one snapshot instead of losing it. Both sounds use the
+// world bus, which is what gives them the panner and distance falloff.
+const STEP_SOUNDS = ["rival_step", "rival_step_metal", "rival_step_water"];
+const STEP_SURFACES = { metal: 1, water: 2 };
+
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+function stepSurfaceIndex(value) {
+  const code = finite(value, 0);
+  return code >= 0 && code < STEP_SOUNDS.length ? code | 0 : 0;
+}
 
 function finite(value, fallback = null) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -84,6 +95,14 @@ export function createNet(context) {
   let walkPhase = 0;
   let walkSpeed = 0;
 
+  let localSteps = 0;
+  let localStepSurface = 0;
+  let localStepSprint = false;
+  let peerSteps = -1;
+  let peerStepSurface = 0;
+  let peerStepSprint = false;
+  let pendingPeerStep = false;
+
   let peerReady = false;
   let readyAckSent = false;
   let readyTimer = 0;
@@ -112,6 +131,9 @@ export function createNet(context) {
       pi: player.pitch,
       a: player.alive ? 1 : 0,
       c: player.crouching ? 1 : 0,
+      k: localSteps,
+      sv: localStepSurface,
+      r: localStepSprint ? 1 : 0,
     });
   }
 
@@ -167,6 +189,7 @@ export function createNet(context) {
     const end = wall ? wall.point : origin.clone().addScaledVector(dir, 320);
 
     if (context.fx && context.fx.tracer) context.fx.tracer(origin, end);
+    context.audio.play("rival_shot", { pos: origin, gain: 1, jitter: 0.02 });
 
     if (!player.alive || ended) return;
 
@@ -281,6 +304,14 @@ export function createNet(context) {
     const aliveFlag = finite(message.a);
     if (aliveFlag !== null) targetAlive = aliveFlag > 0;
     targetCrouching = message.c === 1;
+
+    const step = finite(message.k);
+    if (step !== null && step > peerSteps) {
+      if (peerSteps >= 0) pendingPeerStep = true;
+      peerSteps = step;
+      peerStepSurface = stepSurfaceIndex(message.sv);
+      peerStepSprint = message.r === 1;
+    }
   };
 
   link.onDisconnect = (reason) => {
@@ -295,6 +326,13 @@ export function createNet(context) {
       d: [dir.x, dir.y, dir.z],
       dmg: finite(context.weapon?.damage, DEFAULT_DAMAGE),
     });
+  });
+
+  context.events.on("player:step", (step) => {
+    if (ended || !player.alive) return;
+    localSteps += 1;
+    localStepSurface = STEP_SURFACES[(step && step.surface) || "concrete"] || 0;
+    localStepSprint = !!(step && step.sprint);
   });
 
   context.events.on("player:dead", () => {
@@ -346,6 +384,18 @@ export function createNet(context) {
     model.arms[0].rotation.x = -swing * 0.45;
     model.arms[1].rotation.x = swing * 0.2;
     model.head.rotation.x = clamp(-pitch * 0.55, -0.55, 0.55);
+
+    if (pendingPeerStep) {
+      pendingPeerStep = false;
+      if (targetAlive && !ended) {
+        context.audio.play(STEP_SOUNDS[peerStepSurface], {
+          pos: position,
+          gain: peerStepSprint ? 0.85 : targetCrouching ? 0.45 : 0.62,
+          pitch: peerStepSprint ? 1.05 : 1,
+          jitter: 0.06,
+        });
+      }
+    }
   }
 
   return {
