@@ -10,16 +10,16 @@ var WORLD_BOUNDS = {
 };
 
 var SUN_LIGHT = {
-  dir: new Vector3(0.916, 0.225, 0.331).normalize(),
-  color: new Color(1, 0.72, 0.42),
-  intensity: 9,
+  dir: new Vector3(0.8, 0.44, 0.41).normalize(),
+  color: new Color(1, 0.96, 0.88),
+  intensity: 9.5,
 };
 
 var SKY_COLORS = {
-  zenith: new Color(0.055, 0.085, 0.13),
-  horizon: new Color(0.95, 0.55, 0.28),
-  horizonAway: new Color(0.16, 0.22, 0.3),
-  fog: new Color(0.42, 0.47, 0.52),
+  zenith: new Color(0.075, 0.22, 0.52),
+  horizon: new Color(0.62, 0.76, 0.92),
+  horizonAway: new Color(0.42, 0.6, 0.82),
+  fog: new Color(0.55, 0.67, 0.8),
 };
 
 var PLAYER_DIMENSIONS = {
@@ -47,7 +47,6 @@ var QUALITY_PRESETS = {
     planar: 0.5,
     bloom: !0,
     motionBlur: !1,
-    rain: 0.4,
   },
   low: {
     name: "low",
@@ -60,7 +59,6 @@ var QUALITY_PRESETS = {
     planar: 0,
     bloom: !0,
     motionBlur: !1,
-    rain: 0.5,
   },
   medium: {
     name: "medium",
@@ -73,7 +71,6 @@ var QUALITY_PRESETS = {
     planar: 0.5,
     bloom: !0,
     motionBlur: !1,
-    rain: 0.8,
   },
   high: {
     name: "high",
@@ -86,7 +83,6 @@ var QUALITY_PRESETS = {
     planar: 0.5,
     bloom: !0,
     motionBlur: !0,
-    rain: 1,
   },
   ultra: {
     name: "ultra",
@@ -99,7 +95,6 @@ var QUALITY_PRESETS = {
     planar: 1,
     bloom: !0,
     motionBlur: !0,
-    rain: 1,
   },
 };
 

@@ -10,7 +10,7 @@ import {
 import { WORLD_BOUNDS } from "../../core/config.js";
 import { Cb, Li, N1, Pb, Rb, U1 } from "./geometry.js";
 import { Ib, zb } from "./asphalt.js";
-import { Lb, Nb, kb } from "./water.js";
+import { Lb, kb } from "./water.js";
 
 var groundShowcaseModule = {};
 
@@ -62,10 +62,9 @@ async function createGround(context) {
     d = new Group();
   d.name = "ground";
   let v = Ib(context, p),
-    g = kb(context, p),
-    x = Nb(context, p);
-  (d.add(v.mesh, g.mesh, g.skirt, x.rain, x.splash), context.scene.add(d));
-  let y = zb(context, v.uniforms, [v.mesh, g.mesh, x.rain, x.splash]);
+    g = kb(context, p);
+  (d.add(v.mesh, g.mesh, g.skirt), context.scene.add(d));
+  let y = zb(context, v.uniforms, [v.mesh, g.mesh]);
   context.render &&
     context.render.addPrePass &&
     context.render.addPrePass(y.pass);
@@ -93,7 +92,6 @@ async function createGround(context) {
       root: d,
       apron: v.mesh,
       sea: g.mesh,
-      rain: x.rain,
       planar: y,
       reflectionTarget: y.target,
       reflectionCamera: y.camera,
@@ -122,20 +120,12 @@ async function createGround(context) {
       seaHeight(M, E) {
         return Lb(M, E, A);
       },
-      setRain(M) {
-        x.setRain(M);
-      },
-      get rainLevel() {
-        return x.rainLevel;
-      },
       setReflections(M) {
         y.enabled = !!M;
       },
       update(M) {
         ((A += M),
-          x.update(M),
           (v.uniforms.uTime.value = A),
-          (v.uniforms.uRain.value = x.rainLevel),
           (g.uniforms.uTime.value = A));
       },
     };

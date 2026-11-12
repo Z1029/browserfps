@@ -18,12 +18,11 @@ import {
 import { Li, fa } from "./geometry.js";
 
 var TR = `
-uniform float uTime, uRain, uWetG, uReflOn, uReflLod, uMarkRes, uMaskRes;
+uniform float uTime, uWetG, uReflOn, uReflLod, uMarkRes, uMaskRes;
 uniform sampler2D uMask, uMarks, uDetail, uDetailN, uRefl;
 uniform vec3 uMaskRect; uniform vec4 uMarkRect; uniform mat4 uReflMatrix; uniform vec2 uReflScale;
 varying vec3 vGWorld;
 float gRough; vec2 gNxz; float gPuddle; float gWet; float gFilm; float gSoak;
-vec3 gHash3(vec2 p){ vec3 q = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973)); q += dot(q, q.yzx + 33.33); return fract((q.xxy + q.yzz) * q.zyx); }
 float gH1(vec2 p){ vec3 q = fract(vec3(p.xyx) * .1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
 float gVN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
   return mix(mix(gH1(i), gH1(i + vec2(1.0, 0.0)), f.x), mix(gH1(i + vec2(0.0, 1.0)), gH1(i + vec2(1.0, 1.0)), f.x), f.y); }
@@ -36,26 +35,6 @@ vec4 gBicubic(sampler2D t, vec2 uv, float res){
   vec2 h0 = (i + w1 / g0 - 0.5) / res, h1 = (i + w3 / g1 + 1.5) / res;
   return (textureLod(t, vec2(h0.x, h0.y), 0.0) * g0.x + textureLod(t, vec2(h1.x, h0.y), 0.0) * g1.x) * g0.y
        + (textureLod(t, vec2(h0.x, h1.y), 0.0) * g0.x + textureLod(t, vec2(h1.x, h1.y), 0.0) * g1.x) * g1.y;
-}
-// one sparse layer of rain rings: every cell gets a new drop (position, size, strength) each cycle, thin soft crest
-// that fades as it expands. Returns a slope (xz) contribution.
-vec2 gRipple(vec2 p, float t, float cell, float seed){
-  vec2 q = p / cell + seed * 17.3; vec2 id = floor(q); vec2 f = fract(q);
-  vec3 h0 = gHash3(id + seed);
-  float tt = t * (0.5 + 0.55 * h0.x) + h0.y * 9.0;
-  float cyc = floor(tt), life = fract(tt);
-  vec3 h = gHash3(id + seed + cyc * 7.31);
-  vec3 hc = gHash3(id.yx + cyc * 3.71 + seed * 5.0);
-  float on = step(h.z, 0.16 + 0.5 * uRain);
-  float rmax = mix(0.1, 0.36, h.x * h.x);
-  vec2 c = mix(vec2(rmax + 0.05), vec2(0.95 - rmax), hc.xy);
-  vec2 dv = (f - c) * cell; float d = length(dv);
-  float r = life * rmax * cell;
-  float w = 0.005 + 0.02 * life;
-  float x = (d - r) / w;
-  float ring = x * exp(-x * x) * 2.3;
-  float amp = 1.0 - life; amp = amp * amp * on * mix(0.3, 1.0, h.y) * smoothstep(0.0, 0.06, life);
-  return (dv / max(d, 1e-4)) * ring * amp;
 }
 `;
 
@@ -157,18 +136,8 @@ var AR = `
   float wsum = puddle + film * 0.2;
   vec2 wv = texture2D(uDetailN, gxz * 0.13 + uTime * vec2(0.031, 0.017)).ba - 0.5;
   vec2 wv2 = texture2D(uDetailN, gxz.yx * 0.31 - uTime * vec2(0.043, 0.027)).ba - 0.5;
-  if (wsum > 0.004) {
-    float rf = 1.0 - smoothstep(10.0, 34.0, gDist);
-    vec2 rip = vec2(0.0);
-    if (rf > 0.0) {
-      vec2 gp2 = vec2(0.8 * gxz.x - 0.6 * gxz.y, 0.6 * gxz.x + 0.8 * gxz.y);
-      vec2 r2 = gRipple(gp2, uTime * 0.87, 1.31, 2.0);
-      rip = gRipple(gxz, uTime, 0.83, 1.0) + vec2(0.8 * r2.x + 0.6 * r2.y, -0.6 * r2.x + 0.8 * r2.y) * 0.9 + gRipple(gxz.yx, uTime * 1.13, 0.57, 3.0).yx * 0.6;
-      rip *= rf * (0.3 + 0.7 * uRain) * 0.3 * smoothstep(0.0, 0.08, depth);
-    }
-    nxz += (rip + (wv * 0.03 + wv2 * 0.018) * (0.4 + 0.6 * deep)) * wsum;
-    rough += (1.0 - rf) * 0.03 * puddle * uRain;
-  }
+  if (wsum > 0.004)
+    nxz += (wv * 0.03 + wv2 * 0.018) * (0.4 + 0.6 * deep) * wsum;
   gSoak = soak;
   gRough = rough; gNxz = nxz; gPuddle = puddle; gWet = wet; gFilm = film;
 }
@@ -207,9 +176,6 @@ function Ib(i, e) {
   let t = {
       uTime: {
         value: 0,
-      },
-      uRain: {
-        value: 0.6,
       },
       uWetG: (i.mats && i.mats.uniforms && i.mats.uniforms.wet) || {
         value: 1,

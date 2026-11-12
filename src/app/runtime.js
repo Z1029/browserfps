@@ -91,7 +91,7 @@ async function startGame() {
     (context.scene = context.render.scene),
     (context.camera = context.render.camera),
     (context.viewCamera = context.render.viewCamera),
-    await setBootProgress("Mixing paint, rust and rain", 0.12),
+    await setBootProgress("Mixing paint and rust", 0.12),
     await initializeSystem("mats", "materials", () => createMaterials(context)),
     (context.physics = createPhysics(context)),
     (context.props = createProps(context)),
@@ -241,7 +241,6 @@ async function startGame() {
       bootElement.hidden = !0;
     }, 700));
   let previousFrameTime = performance.now(),
-    weaponWetness = 1,
     updateSystem = (h, f) => {
       let p = context[h];
       if (p && p.update)
@@ -295,27 +294,6 @@ async function startGame() {
           (updateSystem("player", p),
           updateSystem("weapon", p),
           updateSystem("enemies", p));
-      if (
-        context.weapon &&
-        context.weapon.setWetness &&
-        context.level &&
-        context.level.interiorBoxes &&
-        context.level.interiorBoxes[0]
-      ) {
-        let v = context.level.interiorBoxes[0],
-          g = context.camera.position,
-          x =
-            g.x > v.min.x &&
-            g.x < v.max.x &&
-            g.z > v.min.z &&
-            g.z < v.max.z &&
-            g.y < v.max.y;
-        weaponWetness +=
-          ((x ? 0.3 : 1) - weaponWetness) * Math.min(1, p * (x ? 0.25 : 0.6));
-        try {
-          context.weapon.setWetness(weaponWetness);
-        } catch {}
-      }
       (context.game.state !== "paused" &&
         (updateSystem("fx", p),
         updateSystem("ground", p),

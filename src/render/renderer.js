@@ -251,25 +251,7 @@ async function createRenderer(context) {
         ));
     }
   let M = !!(e.shot || e.show),
-    E = !1,
-    w = {
-      t: 99,
-      power: 0,
-      value: 0,
-    };
-  context.events &&
-    context.events.on &&
-    context.events.on("thunder", (ie) => {
-      ((w.t = 0), (w.power = Math.min(1, (ie && ie.intensity) || 0.6)));
-      let F = Math.PI * (0.55 + Math.random() * 0.9);
-      u.material.uniforms.uFlashDir.value
-        .set(
-          Math.cos(F),
-          0.35 + Math.random() * 0.3,
-          Math.sin(F) * (Math.random() < 0.5 ? -1 : 1),
-        )
-        .normalize();
-    });
+    E = !1;
   let S = {
     scale: 1,
     enabled: !(e.shot || e.show || e.dynres === "0"),
@@ -406,7 +388,6 @@ async function createRenderer(context) {
         exposure: N.exposure,
         time: context.time ? context.time.t : T / 60,
         fast: M,
-        thunder: w.value,
       }),
       n.setRenderTarget(null),
       o.post)
@@ -555,17 +536,7 @@ async function createRenderer(context) {
         let F = performance.now();
         (D && z(F - D), (D = F), T++, n.info.reset(), x.update(ie));
         let X = context.time ? context.time.t : T / 60;
-        ((u.material.uniforms.uTime.value = X),
-          (w.t += ie),
-          (w.value =
-            w.t < 0.9
-              ? w.power *
-                Math.exp(-w.t * 5) *
-                (0.55 + 0.45 * Math.sin(w.t * 47) * Math.sin(w.t * 13 + 1)) *
-                0.35
-              : 0),
-          (u.material.uniforms.uFlash.value = Math.max(0, w.value)),
-          C());
+        ((u.material.uniforms.uTime.value = X), C());
         for (let ne of H)
           try {
             ne(n, r, a);

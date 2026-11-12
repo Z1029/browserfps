@@ -78,7 +78,6 @@ var Iv = {
 };
 
 var tC = new Set([
-  "thunder",
   "foghorn",
   "objective",
   "objective_all",
@@ -96,7 +95,6 @@ var tC = new Set([
 var nC = [
   "ir_outdoor",
   "ir_shed",
-  "rain",
   "whiz",
   "reload_magout",
   "reload_magin",
@@ -125,7 +123,6 @@ var nC = [
   "ui_click",
   "ui_hover",
   "sea",
-  "rain_interior",
   "relay_hum",
   "gull_die",
   "hound_die",
@@ -137,7 +134,6 @@ var nC = [
   "music_brass",
   "relay_cut",
   "objective",
-  "thunder",
   "objective_all",
   "complete",
   "gull_cry",
@@ -705,14 +701,6 @@ function u_(i, e, t) {
     Go[te].music && Me();
   }
   let Oe = {
-      rain: Be("rain", {
-        gain: 0,
-        fade: 2,
-      }),
-      rainIn: Be("rain_interior", {
-        gain: 0,
-        fade: 2,
-      }),
       wind: Be("wind", {
         gain: 0,
         fade: 2,
@@ -1240,15 +1228,6 @@ function u_(i, e, t) {
       }));
   };
   (ln("extraction:reached", Zo),
-    ln("thunder", (te) => {
-      let he = pi(te.intensity != null ? +te.intensity : 0.6, 0.1, 1);
-      ze("thunder", {
-        variant: he > 0.6 ? 1 : 0,
-        delay: 0.5 + (1 - he) * 2 + s() * 0.6,
-        gain: 0.35 + 0.65 * he,
-        jitter: 0.1,
-      });
-    }),
     ln("ui:click", () => ze("ui_click")),
     ln("ui:hover", () => ze("ui_hover")),
     ln("game:state", (te) => {
@@ -1358,8 +1337,6 @@ function u_(i, e, t) {
       (w.gain.value = me),
       (nn -= te) <= 0 && ((nn = 3 + s() * 6), (ut = 0.12 + s() * 0.88)),
       (pt += (ut - pt) * ye(0.5)),
-      Oe.rain.setGain(fe * (1 - 0.93 * P) * 0.95),
-      Oe.rainIn.setGain(fe * P * 0.95),
       Oe.wind.setGain(fe * (0.3 + 0.7 * pt) * (1 - 0.65 * P) * 0.75),
       Oe.wind.setPitch(0.9 + 0.25 * pt),
       Oe.sea.setGain(fe * (1 - 0.5 * P) * 1),

@@ -27,9 +27,8 @@ uniform vec3 uSunDir, uZen, uHor, uHorAway, uSunCol;
 float skyToSun(vec3 d){ return clamp(dot(normalize(d.xz + vec2(1e-5)), normalize(uSunDir.xz)) * 0.5 + 0.5, 0.0, 1.0); }
 vec3 horizonColor(vec3 d){
   float ts = skyToSun(d);
-  vec3 c = mix(uHorAway, uHorAway * 1.25 + vec3(0.05, 0.03, 0.02), smoothstep(0.2, 0.75, ts));
-  c = mix(c, uHor * vec3(1.9, 1.55, 1.2), pow(ts, 6.0));
-  c = mix(c, vec3(1.0, 0.60, 0.24) * 3.4, pow(ts, 34.0));
+  vec3 c = mix(uHorAway, uHor, smoothstep(0.15, 0.85, ts));
+  c = mix(c, uSunCol * vec3(1.06, 1.0, 0.9), pow(ts, 9.0) * 0.55);
   return c;
 }
 `;
@@ -65,8 +64,7 @@ var H6 = `
 // SALTLINE_SKY
 precision highp float;
 varying vec3 vDir;
-uniform float uTime, uEnv, uFlash;
-uniform vec3 uFlashDir;
+uniform float uTime, uEnv;
 ${SKY_NOISE_GLSL}
 ${SKY_COLOR_GLSL}
 
@@ -77,74 +75,32 @@ void main(){
   float s = max(mu, 0.0);
   float ts = skyToSun(d);
 
-  // ---- clear sky behind / below the deck ----
+  // ---- clear day: pale horizon blending into a deep blue zenith ----
   vec3 hc = horizonColor(d);
-  vec3 midC = mix(vec3(0.15, 0.24, 0.36), vec3(0.72, 0.50, 0.34), pow(ts, 3.0));   // pale band above the fire
-  vec3 clearC = mix(hc, midC, smoothstep(0.0, 0.17, h));
-  clearC = mix(clearC, vec3(0.085, 0.145, 0.24), smoothstep(0.10, 0.5, h));
-  // aureole (mie glow round the sun)
-  clearC += uSunCol * vec3(1.0, 0.86, 0.68) * (pow(s, 8.0) * 0.14 + pow(s, 64.0) * 0.55 + pow(s, 600.0) * 2.2 + pow(s, 6000.0) * 14.0);
+  float grad = pow(clamp(h, 0.0, 1.0), 0.55);
+  vec3 col = mix(hc, uZen, smoothstep(0.0, 0.75, grad));
+  // mie aureole around the sun
+  col += uSunCol * vec3(1.0, 0.9, 0.74) * (pow(s, 8.0) * 0.05 + pow(s, 64.0) * 0.22 + pow(s, 600.0) * 1.4 + pow(s, 6000.0) * 12.0);
 
-  // ---- cloud deck ----
-  vec2 cuv = d.xz / (h + 0.10) * vec2(0.62, 0.95);          // rolls of cloud run roughly east-west
-  vec2 wind = vec2(-0.012, 0.004) * uTime;
-  vec2 q = cuv + wind;
-  float warp = fbm3(q * 0.45 + 7.1);
-  vec2 qq = q + (warp - 0.5) * 1.3;
-  float dens = fbm5(qq);
-  // rippled underside (ridged detail), fading with distance so the horizon does not alias
-  float ridg = 1.0 - abs(2.0 * fbm3(qq * 3.1 + 5.0) - 1.0);
-  dens = dens * 0.86 + (ridg - 0.6) * 0.16 * smoothstep(0.03, 0.25, h);
-  float big = n2(q * 0.19 + 3.7);
-  float body = dens * 0.74 + big * 0.36;
-  float cov = smoothstep(0.31, 0.50, body);
-  // the deck ends above the eastern horizon: clear, burning gap toward the sun; almost down to the sea elsewhere
-  float edge = mix(0.030, 0.285, pow(ts, 1.7));
-  float rag = (n2(q * 0.9 + 11.0) - 0.5) * 0.16 + (dens - 0.5) * 0.10;
-  float deck = smoothstep(edge - 0.035, edge + 0.11, h + rag * (0.35 + ts));
-  cov *= deck;
-  // the sun always burns through a ragged hole in the gap, never sits behind solid cloud
-  float hole = smoothstep(0.972, 0.9985, mu + (dens - 0.5) * 0.012);
-  cov *= 1.0 - 0.93 * hole;
-  // thin scud drifting in the gap (veils the sun a little, catches fire)
-  float scud = smoothstep(0.55, 0.85, fbm3(q * vec2(0.55, 1.9) + 31.0)) * (1.0 - deck) * smoothstep(0.02, 0.10, h) * 0.55 * (1.0 - 0.8 * hole);
-
-  // lighting: density gradient toward the sun = self shadowing of the underside relief
-  vec2 sd = normalize(uSunDir.xz);
-  float densS = fbm5(qq + sd * 0.22);
-  float relief = clamp((dens - densS) * 4.5 + 0.5, 0.0, 1.0);
-  float thick = smoothstep(0.40, 0.72, body);
-  vec3 cool = mix(vec3(0.155, 0.195, 0.255), vec3(0.030, 0.042, 0.064), thick);       // slate, darker where the deck is thick
-  cool *= 0.55 + 0.9 * relief * relief;
-  cool += vec3(0.07, 0.10, 0.15) * pow(1.0 - thick, 3.0);                             // thin spots let cold light through
-  // warm light raking the underside from the gap: strongest near the sun and near the deck edge
-  float nearSun = pow(ts, 5.0) * exp(-max(h - edge, 0.0) * 4.5) * 0.9 + pow(s, 7.0) * 0.9;
-  vec3 warm = (uHor * vec3(1.30, 0.66, 0.40)) * nearSun * (0.05 + 2.2 * relief * relief * relief) * 1.15;
-  // burning rim where cloud thins at the edge of the gap
-  float rim = cov * (1.0 - cov) * 4.0;
-  warm += uSunCol * rim * pow(ts, 4.0) * (0.5 + 1.6 * pow(s, 6.0)) * (1.0 - 0.85 * hole);
-  vec3 cloudC = cool + warm;
-  // sheet lightning inside the deck
-  float fl = uFlash * pow(max(dot(d, uFlashDir), 0.0), 5.0);
-  cloudC += vec3(0.55, 0.68, 1.0) * fl * (0.4 + 2.2 * dens * dens);
-  // aerial perspective: far cloud melts into the horizon colour
-  cloudC = mix(cloudC, hc * 0.55 + cloudC * 0.45, exp(-h * 11.0));
-
-  vec3 col = mix(clearC, cloudC, cov * 0.985);
-  vec3 scudC = mix(vec3(0.10, 0.11, 0.14), uHor * 1.5, pow(ts, 3.0)) + uSunCol * pow(s, 24.0) * 2.0;
-  col = mix(col, scudC, scud);
+  // ---- sparse high cirrus, drifting slowly ----
+  vec2 cuv = d.xz / (h + 0.16) * vec2(0.5, 0.9);
+  vec2 q = cuv + vec2(-0.006, 0.002) * uTime;
+  float warp = fbm3(q * 0.55 + 7.1);
+  float cirrus = smoothstep(0.56, 0.82, fbm5(q * vec2(0.55, 2.2) + warp * 0.8));
+  cirrus *= smoothstep(0.015, 0.22, h) * (1.0 - smoothstep(0.55, 0.95, h)) * 0.35;
+  vec3 cirrusC = mix(vec3(0.72, 0.78, 0.86), vec3(1.0, 0.99, 0.96), pow(ts, 2.0));
+  col = mix(col, cirrusC, cirrus * (1.0 - 0.55 * uEnv));
 
   // sun disk (not in the environment capture: the directional light is the sun there)
-  float veil = (1.0 - cov * 0.92) * (1.0 - scud * 0.7);
   float disk = smoothstep(0.999905, 0.999955, mu);
-  col += vec3(1.0, 0.80, 0.52) * disk * 110.0 * veil * (1.0 - uEnv);
+  col += uSunCol * vec3(1.0, 0.94, 0.82) * disk * 130.0 * (1.0 - uEnv);
 
   // below the horizon: sea haze / ground bounce (mostly hidden by geometry)
   if (d.y < 0.0) {
     float t = clamp(-d.y * 5.0, 0.0, 1.0);
-    vec3 low = mix(uHorAway * 0.42, vec3(0.060, 0.064, 0.070), uEnv);
-    low += uHor * 0.55 * pow(ts, 6.0) * exp(d.y * 7.0);
-    col = mix(hc + uSunCol * pow(s, 48.0) * 1.5, low, smoothstep(0.0, 1.0, t));
+    vec3 low = mix(uHorAway * 0.55, vec3(0.11, 0.12, 0.13), uEnv);
+    low += uSunCol * 0.18 * pow(ts, 6.0) * exp(d.y * 7.0);
+    col = mix(hc + uSunCol * pow(s, 48.0) * 0.8, low, smoothstep(0.0, 1.0, t));
   }
   // keep the PMREM free of fireflies
   col = mix(col, min(col, vec3(6.0)), uEnv);
@@ -165,12 +121,6 @@ function W6(i) {
     },
     uEnv: {
       value: 0,
-    },
-    uFlash: {
-      value: 0,
-    },
-    uFlashDir: {
-      value: new Vector3(-0.5, 0.5, -0.7).normalize(),
     },
     uSunDir: {
       value: SUN_LIGHT.dir.clone(),

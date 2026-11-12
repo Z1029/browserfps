@@ -326,7 +326,7 @@ ${Og}
 uniform vec3 uSunCol;
 uniform vec2 uSunUv;
 uniform float uTime, uAspect, uBloom, uDirt, uStreak, uFlare, uCA, uVignette;
-uniform float uDamage, uLowHealth, uAds, uFlash, uFade, uSaturation, uSunOn, uThunder, uAgxMix;
+uniform float uDamage, uLowHealth, uAds, uFlash, uFade, uSaturation, uSunOn, uAgxMix;
 
 // ---- AgX (Filament/Blender fit, as in three.js) ----
 const mat3 SL_REC2020_TO_SRGB = mat3(vec3(1.6605, -0.1246, -0.0182), vec3(-0.5876, 1.1329, -0.1006), vec3(-0.0728, -0.0083, 1.1187));
@@ -529,10 +529,10 @@ ${fe}`,
     }),
     g = {
       volSunScale: 0.85,
-      volAmbient: 0.2,
-      volSigma: 0.0034,
+      volAmbient: 0.24,
+      volSigma: 0.0022,
       volMaxDist: 170,
-      volFarHaze: 0.42,
+      volFarHaze: 0.28,
       volInteriorDust: 6,
       aoRadius: 0.9,
       aoIntensity: 1.6,
@@ -973,9 +973,6 @@ ${fe}`,
         uSunOn: {
           value: 0,
         },
-        uThunder: {
-          value: 0,
-        },
         uAgxMix: {
           value: g.agxMix,
         },
@@ -1094,7 +1091,6 @@ ${fe}`,
     exposure: se,
     time: ae,
     fast: k,
-    thunder: ce,
   }) {
     let ve = d(),
       _e = fe.projectionMatrix.elements,
@@ -1146,7 +1142,7 @@ ${fe}`,
         (be.uFarZ.value = fe.far));
       let ut = le.intensity * g.volSunScale;
       be.uSunRad.value.set(le.color.r * ut, le.color.g * ut, le.color.b * ut);
-      let nn = g.volAmbient * (1 + ce * 1.5);
+      let nn = g.volAmbient;
       (be.uAmb.value.set(
         SKY_COLORS.fog.r * nn,
         SKY_COLORS.fog.g * nn,
