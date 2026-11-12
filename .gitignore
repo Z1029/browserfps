@@ -1,5 +1,14 @@
+# 前端缓存
 node_modules/
 dist/
 .DS_Store
 *.log
 .vite/
+
+# 调试脚本
+dev/
+functions/
+
+# 第三方站点配置
+.双人竞技场.qoder.site
+
