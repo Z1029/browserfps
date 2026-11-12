@@ -1,14 +1,16 @@
 # BrowserFPS
 
-从 [原始 Claude Artifact](https://claude.ai/artifact/BGY1SztrAYcJQHSsnHHGmp) 恢复的完整可运行版本，保留原游戏画面、关卡、敌人、武器、音效、操作和菜单。
+从 [Claude Artifact](https://claude.ai/artifact/BGY1SztrAYcJQHSsnHHGmp) 修改可运行版本，支持双人对抗，单人靶场等玩法。
+
+试玩链接：https://arena-duel-ot3metkcegy.qoder.zone/
 
 ## 游戏截图
 
-![Saltline 港口战斗场景](docs/screenshots/saltline-harbor.png)
+![主界面](./docs/screenshots/main-page.png)
 
-![Saltline 仓库内换弹动作](docs/screenshots/saltline-reload.png)
+![对战](./docs/screenshots/game.png)
 
-![Saltline 港口交火场景](docs/screenshots/saltline-combat.png)
+![靶场](./docs/screenshots/train.png)
 
 ## 本地开发
 
@@ -75,20 +77,3 @@ npm run preview
 | 暂停 | Esc 或 P |
 
 浏览器无法锁定鼠标时，原版也支持按住鼠标拖动视角，或方向键 / IJKL 转向、Enter 开火。触屏和手柄支持沿用原版，具体布局在 **CONTROLS** 中查看。
-
-设置保存在当前浏览器的 `localStorage`（`saltline.settings.v1`）。本地地址与原站的浏览器存储相互独立。
-
-## Git 仓库
-- 当前仓库（origin）：https://github.com/Z1029/browserfps（fork）
-- 上游仓库（upstream）：https://github.com/realskyrin/fps3ademo-saltline
-- 当前分支：main
-- 提交历史：6 条提交
-- 最后更新：2026-11-12
-- 同步状态：本地 `main` 领先 `origin/main` 1 条提交，工作区干净
-
-```sh
-git clone https://github.com/Z1029/browserfps.git
-cd browserfps
-npm ci
-npm run dev
-```
