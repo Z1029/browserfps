@@ -626,6 +626,64 @@ input {
   padding: 4px 18px 18px;
 }
 
+.bindings {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 6px 0 10px;
+}
+
+.bind-row {
+  display: contents;
+}
+
+.bind-row span {
+  font: 600 12px/1 var(--f-label, "Barlow Condensed", sans-serif);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-dim, rgba(232, 228, 218, 0.64));
+}
+
+.keybind {
+  cursor: pointer;
+  min-width: 96px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(232, 228, 218, 0.35);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--bone, #e8e4da);
+  font: 500 11px/1 var(--f-mono, "IBM Plex Mono", monospace);
+  letter-spacing: 0.06em;
+}
+
+.keybind:hover {
+  border-color: var(--bone, #e8e4da);
+}
+
+.keybind:focus-visible {
+  outline: 2px solid var(--signal, #ffb347);
+  outline-offset: 2px;
+}
+
+.keybind.capturing {
+  border-color: var(--signal, #ffb347);
+  color: var(--signal, #ffb347);
+}
+
+.keybind.conflict {
+  border-color: var(--alarm, #ff5a40);
+  color: var(--alarm, #ff5a40);
+}
+
+.bind-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2px 0 6px;
+}
+
+
 /* ---------- in-match additions ---------- */
 
 #ui .h-obj,

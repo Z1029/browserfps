@@ -1,6 +1,15 @@
 // DOM menus, persisted settings and controls panels.
 import { PLAYER_DIMENSIONS, QUALITY_PRESETS } from "../core/config.js";
 import { t as tr } from "../../i18n.js";
+import {
+  KEY_ACTIONS,
+  DEFAULT_KEY_BINDINGS,
+  loadKeyBindings,
+  saveKeyBinding,
+  resetKeyBindings,
+  formatKey,
+} from "../../keybinds.js";
+import { KEY_BINDINGS, refreshKeyBindings } from "../input/input.js";
 
 var SETTINGS_KEY = "saltline.settings.v1";
 
@@ -72,16 +81,18 @@ function createMenus(context, e) {
     s = document.createElement("div");
   const keyboardControls = () => `
   <dl class="keys">
-    <div><dt>${tr("controls.move")}</dt><dd><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dd></div>
     <div><dt>${tr("controls.look")}</dt><dd>${tr("controls.mouse")}</dd></div>
     <div><dt>${tr("controls.fire")}</dt><dd>${tr("controls.left")}</dd></div>
     <div><dt>${tr("controls.aim")}</dt><dd>${tr("controls.right")}</dd></div>
-    <div><dt>${tr("controls.reload")}</dt><dd><kbd>R</kbd></dd></div>
-    <div><dt>${tr("controls.jump")}</dt><dd><kbd>Space</kbd></dd></div>
-    <div><dt>${tr("controls.sprint")}</dt><dd><kbd>Shift</kbd></dd></div>
-    <div><dt>${tr("controls.crouch")}</dt><dd>${tr("controls.crouchKeys")}</dd></div>
-    <div><dt>${tr("controls.pause")}</dt><dd>${tr("controls.pauseKeys")}</dd></div>
   </dl>`;
+  const customBindings = loadKeyBindings();
+  const bindingRows = () =>
+    KEY_ACTIONS.map(
+      (action) =>
+        `<div class="bind-row"><span>${tr("bind." + action)}</span>` +
+        `<button type="button" class="keybind" data-bind="${action}">` +
+        `${formatKey(customBindings[action] || DEFAULT_KEY_BINDINGS[action])}</button></div>`,
+    ).join("");
   const touchControls = () => `
   <dl class="keys">
     <div><dt>${tr("controls.move")}</dt><dd>${tr("menu.touchMove")}</dd></div>
@@ -170,6 +181,10 @@ function createMenus(context, e) {
       </div>
       <div class="panel-b" data-pane="controls" hidden>
         <h3>${tr("settings.keyboard")}</h3>${keyboardControls()}
+        <h3>${tr("bind.title")}</h3>
+        <div class="bindings" data-bindings>${bindingRows()}</div>
+        <div class="bind-actions"><button class="btn small" type="button" data-act="reset-keys">${tr("bind.reset")}</button></div>
+        <p class="panel-note">${tr("bind.hint")}</p>
         <p class="panel-note">${tr("menu.keyboardNote")}</p>
         <h3>${tr("menu.touch")}</h3>${touchControls()}
         <h3>${tr("settings.gamepad")}</h3>
@@ -303,10 +318,82 @@ function createMenus(context, e) {
       });
     } catch {}
   }
+  let capturingBind = null;
+  const bindContainer = s.querySelector("[data-bindings]");
+  const bindButtons = [...s.querySelectorAll(".keybind")];
+
+  function refreshBindLabels() {
+    const custom = loadKeyBindings();
+    for (const button of bindButtons) {
+      const action = button.dataset.bind;
+      if (!action) continue;
+      button.textContent = formatKey(custom[action] || DEFAULT_KEY_BINDINGS[action] || "");
+      button.classList.remove("capturing", "conflict");
+    }
+  }
+
+  function cancelBindCapture() {
+    if (!capturingBind) return;
+    capturingBind = null;
+    refreshBindLabels();
+  }
+
+  function flashBindConflict() {
+    if (!capturingBind) return;
+    const button = bindButtons.find((item) => item.dataset.bind === capturingBind);
+    if (!button) return;
+    button.textContent = tr("bind.conflict");
+    button.classList.add("conflict");
+    setTimeout(() => {
+      if (capturingBind && button.dataset.bind === capturingBind) {
+        button.textContent = tr("bind.capturing");
+        button.classList.remove("conflict");
+      }
+    }, 900);
+  }
+
+  function onBindKey(event) {
+    if (!capturingBind) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (event.code === "Escape" && capturingBind !== "pause") {
+      cancelBindCapture();
+      return;
+    }
+    const owner = KEY_BINDINGS[event.code];
+    if (owner && owner !== capturingBind) {
+      flashBindConflict();
+      return;
+    }
+    saveKeyBinding(capturingBind, event.code);
+    refreshKeyBindings();
+    capturingBind = null;
+    refreshBindLabels();
+  }
+
+  if (bindContainer) {
+    bindContainer.addEventListener("click", (event) => {
+      const button = event.target.closest(".keybind");
+      if (!button || !button.dataset.bind) return;
+      event.stopPropagation();
+      const action = button.dataset.bind;
+      if (capturingBind === action) {
+        cancelBindCapture();
+        return;
+      }
+      capturingBind = action;
+      refreshBindLabels();
+      button.classList.add("capturing");
+      button.textContent = tr("bind.capturing");
+    });
+  }
+  addEventListener("keydown", onBindKey, true);
+
   function S() {
     return a.hidden
       ? !1
       : ((a.hidden = !0),
+        cancelBindCapture(),
         s.classList.remove("panel-open"),
         d && d.focus && s.contains(d) ? d.focus() : H(),
         !0);
@@ -333,10 +420,17 @@ function createMenus(context, e) {
       return;
     }
     if (T.dataset.tab) {
+      cancelBindCapture();
       z(T.dataset.tab);
       return;
     }
     let D = T.dataset.act;
+    if (D === "reset-keys") {
+      resetKeyBindings();
+      refreshKeyBindings();
+      refreshBindLabels();
+      return;
+    }
     D === "settings"
       ? w("settings")
       : D === "controls"

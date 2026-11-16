@@ -1,4 +1,5 @@
 // Original keyboard, pointer, touch and gamepad controls.
+import { KEY_ACTIONS, loadKeyBindings } from "../../keybinds.js";
 
 var KEY_BINDINGS = {
   KeyW: "forward",
@@ -29,6 +30,23 @@ var KEY_BINDINGS = {
   KeyI: "turnU",
   KeyK: "turnD",
 };
+
+var BASE_KEY_BINDINGS = { ...KEY_BINDINGS };
+
+function refreshKeyBindings() {
+  for (let key of Object.keys(KEY_BINDINGS)) delete KEY_BINDINGS[key];
+  Object.assign(KEY_BINDINGS, BASE_KEY_BINDINGS);
+  let custom = loadKeyBindings();
+  for (let action of KEY_ACTIONS) {
+    let code = custom[action];
+    if (!code) continue;
+    for (let key of Object.keys(KEY_BINDINGS))
+      KEY_BINDINGS[key] === action && delete KEY_BINDINGS[key];
+    KEY_BINDINGS[code] = action;
+  }
+}
+
+refreshKeyBindings();
 
 var f_ = 0.0021;
 
@@ -514,4 +532,4 @@ function createInput(context) {
   return f;
 }
 
-export { createInput, KEY_BINDINGS };
+export { createInput, KEY_BINDINGS, refreshKeyBindings };
