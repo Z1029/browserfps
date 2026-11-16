@@ -1,5 +1,6 @@
 // DOM menus, persisted settings and controls panels.
 import { PLAYER_DIMENSIONS, QUALITY_PRESETS } from "../core/config.js";
+import { t as tr } from "../../i18n.js";
 
 var SETTINGS_KEY = "saltline.settings.v1";
 
@@ -69,6 +70,28 @@ function createMenus(context, e) {
   let t = document.getElementById("ui"),
     n = loadSettings(),
     s = document.createElement("div");
+  const keyboardControls = () => `
+  <dl class="keys">
+    <div><dt>${tr("controls.move")}</dt><dd><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></dd></div>
+    <div><dt>${tr("controls.look")}</dt><dd>${tr("controls.mouse")}</dd></div>
+    <div><dt>${tr("controls.fire")}</dt><dd>${tr("controls.left")}</dd></div>
+    <div><dt>${tr("controls.aim")}</dt><dd>${tr("controls.right")}</dd></div>
+    <div><dt>${tr("controls.reload")}</dt><dd><kbd>R</kbd></dd></div>
+    <div><dt>${tr("controls.jump")}</dt><dd><kbd>Space</kbd></dd></div>
+    <div><dt>${tr("controls.sprint")}</dt><dd><kbd>Shift</kbd></dd></div>
+    <div><dt>${tr("controls.crouch")}</dt><dd>${tr("controls.crouchKeys")}</dd></div>
+    <div><dt>${tr("controls.pause")}</dt><dd>${tr("controls.pauseKeys")}</dd></div>
+  </dl>`;
+  const touchControls = () => `
+  <dl class="keys">
+    <div><dt>${tr("controls.move")}</dt><dd>${tr("menu.touchMove")}</dd></div>
+    <div><dt>${tr("controls.look")}</dt><dd>${tr("menu.touchLook")}</dd></div>
+    <div><dt>${tr("controls.fire")}</dt><dd>${tr("menu.touchFire")}</dd></div>
+    <div><dt>${tr("controls.aim")}</dt><dd>${tr("menu.touchAim")}</dd></div>
+    <div><dt>${tr("controls.reload")}</dt><dd>RLD</dd></div>
+    <div><dt>${tr("controls.jump")}</dt><dd>JUMP</dd></div>
+    <div><dt>${tr("controls.sprint")}</dt><dd>${tr("menu.touchSprint")}</dd></div>
+  </dl>`;
   ((s.className = "menu"),
     (s.dataset.screen = "none"),
     (s.innerHTML = `
@@ -99,11 +122,11 @@ function createMenus(context, e) {
       <h2 class="m-h">Paused</h2>
       <p class="m-line" data-f="lookmode"></p>
       <div class="m-actions col">
-        <button class="btn primary" data-act="resume">Resume</button>
-        <button class="btn" data-act="settings">Settings</button>
-        <button class="btn" data-act="controls">Controls</button>
-        <button class="btn" data-act="mainmenu">Main menu</button>
-        <button class="btn" data-act="restart">Restart mission</button>
+        <button class="btn primary" data-act="resume">${tr("pause.resume")}</button>
+        <button class="btn" data-act="settings">${tr("menu.settings")}</button>
+        <button class="btn" data-act="controls">${tr("menu.controls")}</button>
+        <button class="btn" data-act="mainmenu">${tr("pause.mainMenu")}</button>
+        <button class="btn" data-act="restart">${tr("menu.restart")}</button>
       </div>
     </section>
 
@@ -130,27 +153,27 @@ function createMenus(context, e) {
     <div class="panel" role="dialog" aria-modal="true" aria-label="Settings and controls" tabindex="-1" hidden>
       <header class="panel-h">
         <div class="tabs" role="tablist">
-          <button class="tab" role="tab" data-tab="settings" aria-selected="true">Settings</button>
-          <button class="tab" role="tab" data-tab="controls" aria-selected="false">Controls</button>
+          <button class="tab" role="tab" data-tab="settings" aria-selected="true">${tr("menu.settings")}</button>
+          <button class="tab" role="tab" data-tab="controls" aria-selected="false">${tr("menu.controls")}</button>
         </div>
-        <button class="btn small" data-act="close-panel">Close</button>
+        <button class="btn small" data-act="close-panel">${tr("menu.close")}</button>
       </header>
       <div class="panel-b" data-pane="settings">
-        <div class="row"><label id="l-q">Graphics quality</label>
-          <div class="seg" role="group" aria-labelledby="l-q">${QUALITY_NAMES.map((U) => `<button data-q="${U}" aria-pressed="false">${U}</button>`).join("")}</div></div>
-        <div class="row"><label for="s-sens">Mouse sensitivity</label><div class="slider"><input id="s-sens" type="range" min="0.2" max="3" step="0.05"><output data-o="sens"></output></div></div>
-        <div class="row"><label id="l-inv">Invert Y</label><button class="toggle" data-act="invert" aria-labelledby="l-inv" aria-pressed="false"><i></i><span>Off</span></button></div>
-        <div class="row"><label for="s-vol">Master volume</label><div class="slider"><input id="s-vol" type="range" min="0" max="100" step="1"><output data-o="vol"></output></div></div>
-        <div class="row"><label for="s-fov">Field of view</label><div class="slider"><input id="s-fov" type="range" min="60" max="95" step="1"><output data-o="fov"></output></div></div>
-        <div class="row" data-row="fs"><label id="l-fs">Display</label><button class="btn small" data-act="fullscreen" aria-labelledby="l-fs fs-t"><span id="fs-t">Enter fullscreen</span></button></div>
+        <div class="row"><label id="l-q">${tr("menu.quality")}</label>
+          <div class="seg" role="group" aria-labelledby="l-q">${QUALITY_NAMES.map((U) => `<button data-q="${U}" aria-pressed="false">${tr("quality." + U)}</button>`).join("")}</div></div>
+        <div class="row"><label for="s-sens">${tr("menu.sens")}</label><div class="slider"><input id="s-sens" type="range" min="0.2" max="3" step="0.05"><output data-o="sens"></output></div></div>
+        <div class="row"><label id="l-inv">${tr("menu.invert")}</label><button class="toggle" data-act="invert" aria-labelledby="l-inv" aria-pressed="false"><i></i><span>${tr("menu.off")}</span></button></div>
+        <div class="row"><label for="s-vol">${tr("menu.volume")}</label><div class="slider"><input id="s-vol" type="range" min="0" max="100" step="1"><output data-o="vol"></output></div></div>
+        <div class="row"><label for="s-fov">${tr("menu.fov")}</label><div class="slider"><input id="s-fov" type="range" min="60" max="95" step="1"><output data-o="fov"></output></div></div>
+        <div class="row" data-row="fs"><label id="l-fs">${tr("menu.display")}</label><button class="btn small" data-act="fullscreen" aria-labelledby="l-fs fs-t"><span id="fs-t">${tr("menu.fullscreenEnter")}</span></button></div>
         <p class="panel-note" data-f="qnote"></p>
       </div>
       <div class="panel-b" data-pane="controls" hidden>
-        <h3>Keyboard \xB7 Mouse</h3>${KEYBOARD_CONTROLS_HTML}
-        <p class="panel-note">If the browser will not capture the mouse, hold a mouse button and drag to look (left also fires, right also aims). Arrow keys or <kbd>I</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> turn, <kbd>Enter</kbd> fires.</p>
-        <h3>Touch</h3>${TOUCH_CONTROLS_HTML}
-        <h3>Gamepad</h3>
-        <p class="panel-note">Sticks move and look \xB7 RT fire \xB7 LT aim \xB7 A jump \xB7 B crouch \xB7 X reload \xB7 Y cut relay \xB7 L3 sprint \xB7 Start pause.</p>
+        <h3>${tr("settings.keyboard")}</h3>${keyboardControls()}
+        <p class="panel-note">${tr("menu.keyboardNote")}</p>
+        <h3>${tr("menu.touch")}</h3>${touchControls()}
+        <h3>${tr("settings.gamepad")}</h3>
+        <p class="panel-note">${tr("menu.gamepadNote")}</p>
       </div>
     </div>
 
@@ -222,11 +245,11 @@ function createMenus(context, e) {
       (o('[data-o="fov"]').textContent = Math.round(n.fov) + "\xB0"));
     let T = o('[data-act="invert"]');
     (T.setAttribute("aria-pressed", String(n.invertY)),
-      (T.querySelector("span").textContent = n.invertY ? "On" : "Off"),
+      (T.querySelector("span").textContent = n.invertY ? tr("menu.on") : tr("menu.off")),
       (c("qnote").textContent =
         n.quality === "auto"
-          ? `Quality was picked for this device (${U || "default"}). Lower it if the frame rate struggles.`
-          : "Quality changes apply at once; shadows and reflections may take a moment to rebuild."));
+          ? tr("menu.qualityNoteAuto", { q: U ? tr("quality." + U) : tr("quality.auto") })
+          : tr("menu.qualityNote")));
   }
   (u.addEventListener("input", () => {
     ((n.sens = +u.value), v("sens"), g(), saveSettings(n));
@@ -248,7 +271,7 @@ function createMenus(context, e) {
     document.webkitFullscreenEnabled !== !1) ||
     (x.hidden = !0);
   function _() {
-    y.textContent = "Fullscreen is not available here";
+    y.textContent = tr("menu.fullscreenUnavailable");
   }
   function M() {
     try {
@@ -265,7 +288,7 @@ function createMenus(context, e) {
     }
   }
   let E = () => {
-    y.textContent = b() ? "Exit fullscreen" : "Enter fullscreen";
+    y.textContent = b() ? tr("menu.fullscreenExit") : tr("menu.fullscreenEnter");
   };
   (document.addEventListener("fullscreenchange", E),
     document.addEventListener("webkitfullscreenchange", E));
