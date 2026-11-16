@@ -61,6 +61,9 @@ export function createPvpFlow(context) {
     restart() {},
     retry() {},
     redeploy() {},
+    mainmenu() {
+      location.reload();
+    },
   });
   menus.applySettings();
 
@@ -73,6 +76,8 @@ export function createPvpFlow(context) {
     if (kicker) kicker.textContent = t("pause.kicker");
     if (heading) heading.textContent = t("pause.title");
     if (resumeBtn) resumeBtn.textContent = t("pause.resume");
+    const mainMenuBtn = pauseScreen.querySelector('[data-act="mainmenu"]');
+    if (mainMenuBtn) mainMenuBtn.textContent = t("pause.mainMenu");
   }
   for (const row of menuRoot.querySelectorAll(".keys div")) {
     const text = row.textContent || "";

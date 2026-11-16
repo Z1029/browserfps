@@ -102,6 +102,7 @@ function createMenus(context, e) {
         <button class="btn primary" data-act="resume">Resume</button>
         <button class="btn" data-act="settings">Settings</button>
         <button class="btn" data-act="controls">Controls</button>
+        <button class="btn" data-act="mainmenu">Main menu</button>
         <button class="btn" data-act="restart">Restart mission</button>
       </div>
     </section>
